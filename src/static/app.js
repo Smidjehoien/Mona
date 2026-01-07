@@ -113,12 +113,15 @@ document.addEventListener("DOMContentLoaded", () => {
           skillsList.innerHTML = `<ul class="skills-list">${skillsHTML}</ul>`;
         }
         skillsList.classList.remove("hidden");
+      } else if (response.status === 400) {
+        skillsList.innerHTML = '<p class="error">Invalid email format. Please enter a valid email address.</p>';
+        skillsList.classList.remove("hidden");
       } else {
-        skillsList.innerHTML = '<p class="error">Failed to load skills</p>';
+        skillsList.innerHTML = '<p class="error">Failed to load skills. Please try again.</p>';
         skillsList.classList.remove("hidden");
       }
     } catch (error) {
-      skillsList.innerHTML = '<p class="error">Failed to load skills. Please try again.</p>';
+      skillsList.innerHTML = '<p class="error">Network error. Please check your connection and try again.</p>';
       skillsList.classList.remove("hidden");
       console.error("Error fetching skills:", error);
     }

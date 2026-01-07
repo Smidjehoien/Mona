@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 import os
 from pathlib import Path
+import re
 
 app = FastAPI(title="Mergington High School API",
               description="API for viewing and signing up for extracurricular activities")
@@ -44,14 +45,14 @@ activities = {
     }
 }
 
-# In-memory student skills database
+# In-memory student skills database (using sets for better performance)
 student_skills = {
-    "michael@mergington.edu": ["Strategic Thinking", "Problem Solving", "Critical Analysis"],
-    "daniel@mergington.edu": ["Strategic Thinking", "Problem Solving", "Critical Analysis"],
-    "emma@mergington.edu": ["Coding", "Problem Solving", "Logical Thinking", "Debugging"],
-    "sophia@mergington.edu": ["Coding", "Problem Solving", "Logical Thinking", "Debugging"],
-    "john@mergington.edu": ["Teamwork", "Physical Fitness", "Coordination"],
-    "olivia@mergington.edu": ["Teamwork", "Physical Fitness", "Coordination"]
+    "michael@mergington.edu": {"Strategic Thinking", "Problem Solving", "Critical Analysis"},
+    "daniel@mergington.edu": {"Strategic Thinking", "Problem Solving", "Critical Analysis"},
+    "emma@mergington.edu": {"Coding", "Problem Solving", "Logical Thinking", "Debugging"},
+    "sophia@mergington.edu": {"Coding", "Problem Solving", "Logical Thinking", "Debugging"},
+    "john@mergington.edu": {"Teamwork", "Physical Fitness", "Coordination"},
+    "olivia@mergington.edu": {"Teamwork", "Physical Fitness", "Coordination"}
 }
 
 
@@ -78,14 +79,13 @@ def signup_for_activity(activity_name: str, email: str):
     # Add student
     activity["participants"].append(email)
     
-    # Update student skills
+    # Update student skills (using sets for O(1) lookup and add)
     if email not in student_skills:
-        student_skills[email] = []
+        student_skills[email] = set()
     
     # Add new skills from the activity
     for skill in activity.get("skills", []):
-        if skill not in student_skills[email]:
-            student_skills[email].append(skill)
+        student_skills[email].add(skill)
     
     return {"message": f"Signed up {email} for {activity_name}"}
 
@@ -93,6 +93,11 @@ def signup_for_activity(activity_name: str, email: str):
 @app.get("/skills/{email}")
 def get_student_skills(email: str):
     """Get skills for a specific student"""
+    # Validate email format
+    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    if not re.match(email_pattern, email):
+        raise HTTPException(status_code=400, detail="Invalid email format")
+    
     if email not in student_skills:
         return {"email": email, "skills": []}
-    return {"email": email, "skills": student_skills[email]}
+    return {"email": email, "skills": list(student_skills[email])}
