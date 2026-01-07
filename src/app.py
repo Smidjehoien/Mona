@@ -12,6 +12,9 @@ import os
 from pathlib import Path
 import re
 
+# Email validation pattern
+EMAIL_PATTERN = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+
 app = FastAPI(title="Mergington High School API",
               description="API for viewing and signing up for extracurricular activities")
 
@@ -102,8 +105,7 @@ def signup_for_activity(activity_name: str, email: str):
 def get_student_skills(email: str):
     """Get skills for a specific student"""
     # Validate email format
-    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    if not re.match(email_pattern, email):
+    if not re.match(EMAIL_PATTERN, email):
         raise HTTPException(status_code=400, detail="Invalid email format")
     
     if email not in student_skills:

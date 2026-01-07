@@ -109,8 +109,16 @@ document.addEventListener("DOMContentLoaded", () => {
         if (result.skills.length === 0) {
           skillsList.innerHTML = '<p class="info">No skills gained yet. Sign up for activities to gain skills!</p>';
         } else {
-          const skillsHTML = result.skills.map(skill => `<li>${skill}</li>`).join("");
-          skillsList.innerHTML = `<ul class="skills-list">${skillsHTML}</ul>`;
+          // Create skills list safely using DOM methods to prevent XSS
+          const ul = document.createElement('ul');
+          ul.className = 'skills-list';
+          result.skills.forEach(skill => {
+            const li = document.createElement('li');
+            li.textContent = skill; // Use textContent to prevent XSS
+            ul.appendChild(li);
+          });
+          skillsList.innerHTML = '';
+          skillsList.appendChild(ul);
         }
         skillsList.classList.remove("hidden");
       } else if (response.status === 400) {
