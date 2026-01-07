@@ -47,6 +47,12 @@ def root():
     return RedirectResponse(url="/static/index.html")
 
 
+@app.get("/hello")
+def hello():
+    """Simple hello world endpoint"""
+    return {"message": "Ahoi! Welcome to Mergington High School!"}
+
+
 @app.get("/activities")
 def get_activities():
     return activities
