@@ -10,6 +10,10 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 import os
 from pathlib import Path
+import re
+
+# Email validation pattern
+EMAIL_PATTERN = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 
 app = FastAPI(title="Mergington High School API",
               description="API for viewing and signing up for extracurricular activities")
@@ -25,20 +29,33 @@ activities = {
         "description": "Learn strategies and compete in chess tournaments",
         "schedule": "Fridays, 3:30 PM - 5:00 PM",
         "max_participants": 12,
-        "participants": ["michael@mergington.edu", "daniel@mergington.edu"]
+        "participants": ["michael@mergington.edu", "daniel@mergington.edu"],
+        "skills": ["Strategic Thinking", "Problem Solving", "Critical Analysis"]
     },
     "Programming Class": {
         "description": "Learn programming fundamentals and build software projects",
         "schedule": "Tuesdays and Thursdays, 3:30 PM - 4:30 PM",
         "max_participants": 20,
-        "participants": ["emma@mergington.edu", "sophia@mergington.edu"]
+        "participants": ["emma@mergington.edu", "sophia@mergington.edu"],
+        "skills": ["Coding", "Problem Solving", "Logical Thinking", "Debugging"]
     },
     "Gym Class": {
         "description": "Physical education and sports activities",
         "schedule": "Mondays, Wednesdays, Fridays, 2:00 PM - 3:00 PM",
         "max_participants": 30,
-        "participants": ["john@mergington.edu", "olivia@mergington.edu"]
+        "participants": ["john@mergington.edu", "olivia@mergington.edu"],
+        "skills": ["Teamwork", "Physical Fitness", "Coordination"]
     }
+}
+
+# In-memory student skills database (using sets for better performance)
+student_skills = {
+    "michael@mergington.edu": {"Strategic Thinking", "Problem Solving", "Critical Analysis"},
+    "daniel@mergington.edu": {"Strategic Thinking", "Problem Solving", "Critical Analysis"},
+    "emma@mergington.edu": {"Coding", "Problem Solving", "Logical Thinking", "Debugging"},
+    "sophia@mergington.edu": {"Coding", "Problem Solving", "Logical Thinking", "Debugging"},
+    "john@mergington.edu": {"Teamwork", "Physical Fitness", "Coordination"},
+    "olivia@mergington.edu": {"Teamwork", "Physical Fitness", "Coordination"}
 }
 
 
@@ -61,7 +78,36 @@ def signup_for_activity(activity_name: str, email: str):
 
     # Get the specific activity
     activity = activities[activity_name]
+    
+    # Check if student is already signed up
+    if email in activity["participants"]:
+        raise HTTPException(status_code=400, detail="Student is already signed up for this activity")
+    
+    # Check if activity is at maximum capacity
+    if len(activity["participants"]) >= activity["max_participants"]:
+        raise HTTPException(status_code=400, detail="Activity is at maximum capacity")
 
     # Add student
     activity["participants"].append(email)
+    
+    # Update student skills (using sets for O(1) lookup and add)
+    if email not in student_skills:
+        student_skills[email] = set()
+    
+    # Add new skills from the activity
+    for skill in activity.get("skills", []):
+        student_skills[email].add(skill)
+    
     return {"message": f"Signed up {email} for {activity_name}"}
+
+
+@app.get("/skills/{email}")
+def get_student_skills(email: str):
+    """Get skills for a specific student"""
+    # Validate email format
+    if not re.match(EMAIL_PATTERN, email):
+        raise HTTPException(status_code=400, detail="Invalid email format")
+    
+    if email not in student_skills:
+        return {"email": email, "skills": []}
+    return {"email": email, "skills": list(student_skills[email])}
