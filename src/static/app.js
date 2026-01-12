@@ -28,6 +28,20 @@ document.addEventListener("DOMContentLoaded", () => {
         if (details.skills && details.skills.length > 0) {
           skillsHTML = `<p><strong>Skills you'll gain:</strong> ${details.skills.join(", ")}</p>`;
         }
+        
+        // Build participants HTML if participants exist
+        let participantsHTML = "";
+        if (details.participants && details.participants.length > 0) {
+          const participantsList = details.participants.map(email => `<li>${email}</li>`).join("");
+          participantsHTML = `
+            <div class="participants-section">
+              <p><strong>Current Participants:</strong></p>
+              <ul class="participants-list">
+                ${participantsList}
+              </ul>
+            </div>
+          `;
+        }
 
         activityCard.innerHTML = `
           <h4>${name}</h4>
@@ -35,6 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
           ${skillsHTML}
+          ${participantsHTML}
         `;
 
         activitiesList.appendChild(activityCard);
