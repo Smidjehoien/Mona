@@ -143,6 +143,29 @@ def signup_for_activity(activity_name: str, email: str):
     return {"message": f"Signed up {email} for {activity_name}"}
 
 
+@app.delete("/activities/{activity_name}/signup")
+def unregister_from_activity(activity_name: str, email: str):
+    """Unregister a student from an activity"""
+    # Validate activity exists
+    if activity_name not in activities:
+        raise HTTPException(status_code=404, detail="Activity not found")
+
+    # Get the specific activity
+    activity = activities[activity_name]
+    
+    # Check if student is signed up
+    if email not in activity["participants"]:
+        raise HTTPException(status_code=400, detail="Student is not signed up for this activity")
+    
+    # Remove student from activity
+    activity["participants"].remove(email)
+    
+    # Note: We intentionally don't remove skills when unregistering,
+    # as students retain skills they've learned from activities
+    
+    return {"message": f"Unregistered {email} from {activity_name}"}
+
+
 @app.get("/skills/{email}")
 def get_student_skills(email: str):
     """Get skills for a specific student"""
