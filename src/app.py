@@ -45,6 +45,48 @@ activities = {
         "max_participants": 30,
         "participants": ["john@mergington.edu", "olivia@mergington.edu"],
         "skills": ["Teamwork", "Physical Fitness", "Coordination"]
+    },
+    "Basketball Team": {
+        "description": "Competitive basketball training and games",
+        "schedule": "Tuesdays and Thursdays, 4:00 PM - 6:00 PM",
+        "max_participants": 15,
+        "participants": [],
+        "skills": ["Teamwork", "Physical Fitness", "Coordination", "Strategy"]
+    },
+    "Swimming Club": {
+        "description": "Swimming training and water sports",
+        "schedule": "Mondays and Wednesdays, 3:30 PM - 5:00 PM",
+        "max_participants": 20,
+        "participants": [],
+        "skills": ["Physical Fitness", "Endurance", "Discipline"]
+    },
+    "Art Studio": {
+        "description": "Express creativity through painting and drawing",
+        "schedule": "Wednesdays, 3:30 PM - 5:00 PM",
+        "max_participants": 15,
+        "participants": [],
+        "skills": ["Creativity", "Artistic Expression", "Visual Design"]
+    },
+    "Drama Club": {
+        "description": "Theater arts and performance training",
+        "schedule": "Tuesdays, 4:00 PM - 6:00 PM",
+        "max_participants": 25,
+        "participants": [],
+        "skills": ["Public Speaking", "Confidence", "Creativity", "Teamwork"]
+    },
+    "Debate Team": {
+        "description": "Learn public speaking and argumentation skills",
+        "schedule": "Thursdays, 3:30 PM - 5:00 PM",
+        "max_participants": 16,
+        "participants": [],
+        "skills": ["Critical Thinking", "Public Speaking", "Research", "Argumentation"]
+    },
+    "Science Club": {
+        "description": "Hands-on experiments and scientific exploration",
+        "schedule": "Fridays, 3:30 PM - 5:00 PM",
+        "max_participants": 20,
+        "participants": [],
+        "skills": ["Scientific Method", "Analysis", "Problem Solving", "Curiosity"]
     }
 }
 
