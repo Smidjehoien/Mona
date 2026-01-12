@@ -23,39 +23,79 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const spotsLeft = details.max_participants - details.participants.length;
         
-        // Build skills HTML if skills exist
-        let skillsHTML = "";
+        // Create title
+        const title = document.createElement("h4");
+        title.textContent = name;
+        activityCard.appendChild(title);
+        
+        // Create description
+        const description = document.createElement("p");
+        description.textContent = details.description;
+        activityCard.appendChild(description);
+        
+        // Create schedule
+        const schedule = document.createElement("p");
+        const scheduleStrong = document.createElement("strong");
+        scheduleStrong.textContent = "Schedule: ";
+        schedule.appendChild(scheduleStrong);
+        schedule.appendChild(document.createTextNode(details.schedule));
+        activityCard.appendChild(schedule);
+        
+        // Create availability
+        const availability = document.createElement("p");
+        const availabilityStrong = document.createElement("strong");
+        availabilityStrong.textContent = "Availability: ";
+        availability.appendChild(availabilityStrong);
+        availability.appendChild(document.createTextNode(`${spotsLeft} spots left`));
+        activityCard.appendChild(availability);
+        
+        // Add skills if they exist
         if (details.skills && details.skills.length > 0) {
-          skillsHTML = `<p><strong>Skills you'll gain:</strong> ${details.skills.join(", ")}</p>`;
+          const skillsPara = document.createElement("p");
+          const skillsStrong = document.createElement("strong");
+          skillsStrong.textContent = "Skills you'll gain: ";
+          skillsPara.appendChild(skillsStrong);
+          skillsPara.appendChild(document.createTextNode(details.skills.join(", ")));
+          activityCard.appendChild(skillsPara);
         }
         
-        // Build participants HTML if participants exist
-        let participantsHTML = "";
+        // Add participants if they exist
         if (details.participants && details.participants.length > 0) {
-          const participantsList = details.participants.map(email => `
-            <li>
-              <span class="participant-email">${email}</span>
-              <button class="delete-btn" data-activity="${name}" data-email="${email}" title="Unregister">✕</button>
-            </li>
-          `).join("");
-          participantsHTML = `
-            <div class="participants-section">
-              <p><strong>Current Participants:</strong></p>
-              <ul class="participants-list">
-                ${participantsList}
-              </ul>
-            </div>
-          `;
+          const participantsSection = document.createElement("div");
+          participantsSection.className = "participants-section";
+          
+          const participantsTitle = document.createElement("p");
+          const participantsTitleStrong = document.createElement("strong");
+          participantsTitleStrong.textContent = "Current Participants:";
+          participantsTitle.appendChild(participantsTitleStrong);
+          participantsSection.appendChild(participantsTitle);
+          
+          const participantsList = document.createElement("ul");
+          participantsList.className = "participants-list";
+          
+          details.participants.forEach(email => {
+            const li = document.createElement("li");
+            
+            const emailSpan = document.createElement("span");
+            emailSpan.className = "participant-email";
+            emailSpan.textContent = email;
+            li.appendChild(emailSpan);
+            
+            const deleteBtn = document.createElement("button");
+            deleteBtn.className = "delete-btn";
+            deleteBtn.setAttribute("data-activity", name);
+            deleteBtn.setAttribute("data-email", email);
+            deleteBtn.setAttribute("title", "Unregister");
+            deleteBtn.textContent = "✕";
+            deleteBtn.addEventListener("click", handleUnregister);
+            li.appendChild(deleteBtn);
+            
+            participantsList.appendChild(li);
+          });
+          
+          participantsSection.appendChild(participantsList);
+          activityCard.appendChild(participantsSection);
         }
-
-        activityCard.innerHTML = `
-          <h4>${name}</h4>
-          <p>${details.description}</p>
-          <p><strong>Schedule:</strong> ${details.schedule}</p>
-          <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
-          ${skillsHTML}
-          ${participantsHTML}
-        `;
 
         activitiesList.appendChild(activityCard);
 
@@ -64,11 +104,6 @@ document.addEventListener("DOMContentLoaded", () => {
         option.value = name;
         option.textContent = name;
         activitySelect.appendChild(option);
-      });
-      
-      // Add event listeners for delete buttons
-      document.querySelectorAll(".delete-btn").forEach(btn => {
-        btn.addEventListener("click", handleUnregister);
       });
     } catch (error) {
       activitiesList.innerHTML = "<p>Failed to load activities. Please try again later.</p>";
