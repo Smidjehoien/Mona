@@ -45,6 +45,48 @@ activities = {
         "max_participants": 30,
         "participants": ["john@mergington.edu", "olivia@mergington.edu"],
         "skills": ["Teamwork", "Physical Fitness", "Coordination"]
+    },
+    "Basketball Team": {
+        "description": "Competitive basketball training and games",
+        "schedule": "Tuesdays and Thursdays, 4:00 PM - 6:00 PM",
+        "max_participants": 15,
+        "participants": [],
+        "skills": ["Teamwork", "Physical Fitness", "Coordination", "Strategy"]
+    },
+    "Swimming Club": {
+        "description": "Swimming training and water sports",
+        "schedule": "Mondays and Wednesdays, 3:30 PM - 5:00 PM",
+        "max_participants": 20,
+        "participants": [],
+        "skills": ["Physical Fitness", "Endurance", "Discipline"]
+    },
+    "Art Studio": {
+        "description": "Express creativity through painting and drawing",
+        "schedule": "Wednesdays, 3:30 PM - 5:00 PM",
+        "max_participants": 15,
+        "participants": [],
+        "skills": ["Creativity", "Artistic Expression", "Visual Design"]
+    },
+    "Drama Club": {
+        "description": "Theater arts and performance training",
+        "schedule": "Tuesdays, 4:00 PM - 6:00 PM",
+        "max_participants": 25,
+        "participants": [],
+        "skills": ["Public Speaking", "Confidence", "Creativity", "Teamwork"]
+    },
+    "Debate Team": {
+        "description": "Learn public speaking and argumentation skills",
+        "schedule": "Thursdays, 3:30 PM - 5:00 PM",
+        "max_participants": 16,
+        "participants": [],
+        "skills": ["Critical Thinking", "Public Speaking", "Research", "Argumentation"]
+    },
+    "Science Club": {
+        "description": "Hands-on experiments and scientific exploration",
+        "schedule": "Fridays, 3:30 PM - 5:00 PM",
+        "max_participants": 20,
+        "participants": [],
+        "skills": ["Scientific Method", "Analysis", "Problem Solving", "Curiosity"]
     }
 }
 
@@ -105,6 +147,29 @@ def signup_for_activity(activity_name: str, email: str):
         student_skills[email].add(skill)
     
     return {"message": f"Signed up {email} for {activity_name}"}
+
+
+@app.delete("/activities/{activity_name}/signup")
+def unregister_from_activity(activity_name: str, email: str):
+    """Unregister a student from an activity"""
+    # Validate activity exists
+    if activity_name not in activities:
+        raise HTTPException(status_code=404, detail="Activity not found")
+
+    # Get the specific activity
+    activity = activities[activity_name]
+    
+    # Check if student is signed up
+    if email not in activity["participants"]:
+        raise HTTPException(status_code=400, detail="Student is not signed up for this activity")
+    
+    # Remove student from activity
+    activity["participants"].remove(email)
+    
+    # Note: We intentionally don't remove skills when unregistering,
+    # as students retain skills they've learned from activities
+    
+    return {"message": f"Unregistered {email} from {activity_name}"}
 
 
 @app.get("/skills/{email}")

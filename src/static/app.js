@@ -23,19 +23,79 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const spotsLeft = details.max_participants - details.participants.length;
         
-        // Build skills HTML if skills exist
-        let skillsHTML = "";
+        // Create title
+        const title = document.createElement("h4");
+        title.textContent = name;
+        activityCard.appendChild(title);
+        
+        // Create description
+        const description = document.createElement("p");
+        description.textContent = details.description;
+        activityCard.appendChild(description);
+        
+        // Create schedule
+        const schedule = document.createElement("p");
+        const scheduleStrong = document.createElement("strong");
+        scheduleStrong.textContent = "Schedule: ";
+        schedule.appendChild(scheduleStrong);
+        schedule.appendChild(document.createTextNode(details.schedule));
+        activityCard.appendChild(schedule);
+        
+        // Create availability
+        const availability = document.createElement("p");
+        const availabilityStrong = document.createElement("strong");
+        availabilityStrong.textContent = "Availability: ";
+        availability.appendChild(availabilityStrong);
+        availability.appendChild(document.createTextNode(`${spotsLeft} spots left`));
+        activityCard.appendChild(availability);
+        
+        // Add skills if they exist
         if (details.skills && details.skills.length > 0) {
-          skillsHTML = `<p><strong>Skills you'll gain:</strong> ${details.skills.join(", ")}</p>`;
+          const skillsPara = document.createElement("p");
+          const skillsStrong = document.createElement("strong");
+          skillsStrong.textContent = "Skills you'll gain: ";
+          skillsPara.appendChild(skillsStrong);
+          skillsPara.appendChild(document.createTextNode(details.skills.join(", ")));
+          activityCard.appendChild(skillsPara);
         }
-
-        activityCard.innerHTML = `
-          <h4>${name}</h4>
-          <p>${details.description}</p>
-          <p><strong>Schedule:</strong> ${details.schedule}</p>
-          <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
-          ${skillsHTML}
-        `;
+        
+        // Add participants if they exist
+        if (details.participants && details.participants.length > 0) {
+          const participantsSection = document.createElement("div");
+          participantsSection.className = "participants-section";
+          
+          const participantsTitle = document.createElement("p");
+          const participantsTitleStrong = document.createElement("strong");
+          participantsTitleStrong.textContent = "Current Participants:";
+          participantsTitle.appendChild(participantsTitleStrong);
+          participantsSection.appendChild(participantsTitle);
+          
+          const participantsList = document.createElement("ul");
+          participantsList.className = "participants-list";
+          
+          details.participants.forEach(email => {
+            const li = document.createElement("li");
+            
+            const emailSpan = document.createElement("span");
+            emailSpan.className = "participant-email";
+            emailSpan.textContent = email;
+            li.appendChild(emailSpan);
+            
+            const deleteBtn = document.createElement("button");
+            deleteBtn.className = "delete-btn";
+            deleteBtn.setAttribute("data-activity", name);
+            deleteBtn.setAttribute("data-email", email);
+            deleteBtn.setAttribute("title", "Unregister");
+            deleteBtn.textContent = "✕";
+            deleteBtn.addEventListener("click", handleUnregister);
+            li.appendChild(deleteBtn);
+            
+            participantsList.appendChild(li);
+          });
+          
+          participantsSection.appendChild(participantsList);
+          activityCard.appendChild(participantsSection);
+        }
 
         activitiesList.appendChild(activityCard);
 
@@ -48,6 +108,50 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
       activitiesList.innerHTML = "<p>Failed to load activities. Please try again later.</p>";
       console.error("Error fetching activities:", error);
+    }
+  }
+  
+  // Function to handle unregistering from an activity
+  async function handleUnregister(event) {
+    const activityName = event.target.getAttribute("data-activity");
+    const email = event.target.getAttribute("data-email");
+    
+    if (!confirm(`Are you sure you want to unregister ${email} from ${activityName}?`)) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(
+        `/activities/${encodeURIComponent(activityName)}/signup?email=${encodeURIComponent(email)}`,
+        {
+          method: "DELETE",
+        }
+      );
+      
+      const result = await response.json();
+      
+      if (response.ok) {
+        // Refresh activities list
+        await fetchActivities();
+        
+        // Show success message
+        messageDiv.textContent = result.message;
+        messageDiv.className = "success";
+        messageDiv.classList.remove("hidden");
+        
+        setTimeout(() => {
+          messageDiv.classList.add("hidden");
+        }, 5000);
+      } else {
+        messageDiv.textContent = result.detail || "Failed to unregister";
+        messageDiv.className = "error";
+        messageDiv.classList.remove("hidden");
+      }
+    } catch (error) {
+      messageDiv.textContent = "Failed to unregister. Please try again.";
+      messageDiv.className = "error";
+      messageDiv.classList.remove("hidden");
+      console.error("Error unregistering:", error);
     }
   }
 
@@ -72,6 +176,9 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        
+        // Refresh activities list to show updated participant count
+        await fetchActivities();
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
