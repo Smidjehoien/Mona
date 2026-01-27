@@ -87,7 +87,7 @@ Each activity must include:
 ### Error Handling
 ```python
 if condition_not_met:
-    raise HTTPException(status_code=4xx, detail="Clear error message")
+    raise HTTPException(status_code=400, detail="Clear error message")
 ```
 
 ### Path Parameters
