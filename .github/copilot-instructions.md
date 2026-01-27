@@ -12,7 +12,7 @@ This is a High School Management System API built with FastAPI. The application 
 
 ## Project Structure
 ```
-/home/runner/work/Mona/Mona/
+.
 ├── src/
 │   ├── app.py           # Main FastAPI application
 │   └── static/          # Static web files
