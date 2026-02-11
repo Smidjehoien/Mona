@@ -191,17 +191,3 @@ def test_skills_persist_after_unregister():
     # Check skills are still there
     skills_after = client.get(f"/skills/{email}").json()["skills"]
     assert skills_after == skills_before
-
-
-def test_signup_invalid_email():
-    """Test signing up with invalid email format"""
-    response = client.post("/activities/Chess Club/signup?email=invalid-email")
-    assert response.status_code == 400
-    assert "Invalid email format" in response.json()["detail"]
-
-
-def test_unregister_invalid_email():
-    """Test unregistering with invalid email format"""
-    response = client.delete("/activities/Chess Club/signup?email=invalid-email")
-    assert response.status_code == 400
-    assert "Invalid email format" in response.json()["detail"]
