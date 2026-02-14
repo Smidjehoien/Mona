@@ -39,15 +39,57 @@ All project dependencies have been scanned for known vulnerabilities using the G
 - **No Authentication**: This is a school exercise - not production system
 - **Email Pattern**: Follows standard email format validation
 
-## Known Limitations
+## Code Security Analysis Results
 
-This is an educational exercise application with the following limitations:
+### OWASP Top 10 Assessment
+
+| Category | Status | Notes |
+|----------|--------|-------|
+| SQL Injection | ✅ SAFE | No database used; in-memory storage only |
+| Command Injection | ✅ SAFE | No shell commands or subprocess calls |
+| XSS | ✅ SAFE | Frontend uses `textContent` not `innerHTML` |
+| Path Traversal | ⚠️ LOW | Static files properly scoped to `static/` directory |
+| Insecure Deserialization | ✅ SAFE | Uses FastAPI's safe JSON handling |
+| Broken Access Control | ⚠️ INTENTIONAL | No auth required (educational exercise) |
+| Cryptographic Failures | ✅ N/A | No sensitive data stored |
+| Information Disclosure | ⚠️ LOW | Error messages could be more generic |
+| CORS | ✅ SAFE | Same-Origin Policy enforced by default |
+| Logging/Monitoring | ⚠️ LIMITED | No audit logging (acceptable for exercise) |
+
+### Security Strengths ✅
+
+1. **No SQL Injection**: In-memory storage eliminates database injection risks
+2. **No Command Injection**: No system calls or subprocess execution
+3. **XSS Prevention**: Client-side code properly uses `textContent` instead of `innerHTML`
+4. **Safe Deserialization**: FastAPI's JSON handling is secure
+5. **Input Validation**: Email format validated with regex on all endpoints
+6. **URL Encoding**: All query parameters properly encoded in frontend
+
+### Known Limitations (Educational Exercise)
+
+This is an educational exercise application with the following intentional limitations:
 
 1. **No Authentication**: The API does not implement authentication or authorization
+   - Anyone can sign up/unregister any student
+   - Skills endpoint allows viewing any student's data
+   - **Note**: This is intentional for the learning exercise
+   
 2. **No Rate Limiting**: Endpoints are not rate-limited
+   - Could allow email enumeration
+   - Could be subject to DoS attacks
+   
 3. **In-Memory Storage**: All data is lost on application restart
+   - No persistence layer
+   - No transaction support
+   
 4. **No HTTPS**: Application runs on HTTP (production should use HTTPS)
+   - Data transmitted in clear text
+   
 5. **No Data Encryption**: Data is not encrypted at rest or in transit
+
+6. **Email Validation**: Current regex pattern could be stricter
+   - Allows some edge cases like consecutive dots
+   - Recommendation: Use more restrictive pattern for production
 
 ## Security Best Practices Applied
 
@@ -72,8 +114,33 @@ This is an educational project. For a production system, security issues should 
 
 ### Manual Security Review
 - Code review completed: 2026-02-14
-- No critical security issues identified
-- All security best practices for educational applications followed
+- OWASP Top 10 assessment completed
+- No critical security issues for educational use
+- All identified risks are intentional design choices or acceptable for non-production use
+
+### Security Scan Results
+
+✅ **Dependency Vulnerabilities**: None found (all 4 dependencies clean)  
+✅ **SQL Injection**: Not applicable (no database)  
+✅ **Command Injection**: Not applicable (no system calls)  
+✅ **XSS**: Protected (proper use of textContent)  
+✅ **Deserialization**: Safe (FastAPI JSON handling)  
+⚠️ **Authentication**: Intentionally omitted (educational exercise)  
+⚠️ **Rate Limiting**: Not implemented (acceptable for exercise)  
+⚠️ **Access Control**: Not implemented (intentional design choice)
+
+### Risk Assessment
+
+**For Educational Use**: ✅ **SECURE**  
+**For Production Use**: ❌ **NOT RECOMMENDED** without implementing:
+- Authentication and authorization
+- HTTPS/TLS encryption
+- Rate limiting
+- Audit logging
+- Data persistence with encryption
+- Input sanitization improvements
+- CSRF protection
+- Security headers (CSP, X-Frame-Options, etc.)
 
 ---
 
