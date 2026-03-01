@@ -119,7 +119,20 @@ def get_activities():
 
 @app.post("/activities/{activity_name}/signup")
 def signup_for_activity(activity_name: str, email: str):
-    """Sign up a student for an activity"""
+    """
+    Register a student for an extracurricular activity and add the activity's skills to the student's skill set.
+    
+    Parameters:
+        activity_name (str): Name of the activity to sign up for.
+        email (str): Student email address; must match the module's EMAIL_PATTERN.
+    
+    Returns:
+        dict: A message confirming the signup, e.g. {"message": "Signed up alice@example.com for Chess Club"}.
+    
+    Raises:
+        HTTPException: 400 if the email format is invalid, the student is already signed up, or the activity is at maximum capacity.
+        HTTPException: 404 if the specified activity does not exist.
+    """
     # Validate email format
     if not re.match(EMAIL_PATTERN, email):
         raise HTTPException(status_code=400, detail="Invalid email format")
@@ -155,7 +168,21 @@ def signup_for_activity(activity_name: str, email: str):
 
 @app.delete("/activities/{activity_name}/signup")
 def unregister_from_activity(activity_name: str, email: str):
-    """Unregister a student from an activity"""
+    """
+    Unregister a student from the named activity.
+    
+    Parameters:
+        activity_name (str): The activity's name; must exist in the activities store.
+        email (str): The student's email address; must match the module's email validation pattern.
+    
+    Returns:
+        dict: A message confirming the unregistration, e.g. {"message": "Unregistered user@example.com from Chess Club"}.
+    
+    Raises:
+        HTTPException: 400 if the email format is invalid.
+        HTTPException: 404 if the activity does not exist.
+        HTTPException: 400 if the student is not signed up for the activity.
+    """
     # Validate email format
     if not re.match(EMAIL_PATTERN, email):
         raise HTTPException(status_code=400, detail="Invalid email format")
