@@ -209,7 +209,18 @@ def unregister_from_activity(activity_name: str, email: str):
 
 @app.get("/skills/{email}")
 def get_student_skills(email: str):
-    """Get skills for a specific student"""
+    """
+    Return the recorded skills for the given student email.
+    
+    Parameters:
+        email (str): Student email address; must match the expected school email pattern.
+    
+    Returns:
+        dict: {"email": email, "skills": [...] } where "skills" is a list of the student's skills (empty list if none recorded).
+    
+    Raises:
+        HTTPException: Status 400 if the email does not match the required format.
+    """
     # Validate email format
     if not re.match(EMAIL_PATTERN, email):
         raise HTTPException(status_code=400, detail="Invalid email format")
